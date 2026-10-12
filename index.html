@@ -3,6 +3,26 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <title>GRENDARK RISE</title>
+ 
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#101020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Juego">
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .catch(error => console.error(
+        "Error al activar el modo offline:", error
+      ));
+  });
+}
+</script>
+
 <style>
 :root{--bg:#cfc8e0;--fg:#1b1228;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0814;--fg:#e8e0f5}}
