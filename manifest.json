@@ -1,7 +1,7 @@
 
 {
-  "name": "Mi Juego",
-  "short_name": "Mi Juego",
+  "name": "Grendark Rise",
+  "short_name": "Grendark Rise",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
