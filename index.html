@@ -2,7 +2,7 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
-<title>GRENDARK RISE · Pantalla adaptable</title>
+<title>GRENDARK RISE · Pantalla adaptable v143</title>
  
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -24,13 +24,13 @@ if ("serviceWorker" in navigator) {
 </script>
 
 <style>
-:root{--bg:#cfc8e0;--fg:#1b1228;box-sizing:border-box}
+:root{--bg:#0d0814;--fg:#e8e0f5;--safe-top:env(safe-area-inset-top,0px);--safe-right:env(safe-area-inset-right,0px);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-left:env(safe-area-inset-left,0px);box-sizing:border-box}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0814;--fg:#e8e0f5}}
 :root[data-theme="dark"]{--bg:#0d0814;--fg:#e8e0f5}
-html,body{width:100%;height:100%;min-width:100%;min-height:100%;margin:0;padding:0;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--fg);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-html{height:100vh;height:100dvh}
-body{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center}
-canvas{display:block;flex:none;margin:0;padding:0;max-width:none;image-rendering:pixelated;touch-action:none}
+html,body{width:100%;height:100%;min-width:100%;min-height:100%;margin:0;padding:0;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--fg);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;box-sizing:border-box}
+html{height:100%;height:100vh;height:100dvh;background:var(--bg)}
+body{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:block;background:var(--bg)}
+canvas{position:fixed;display:block;left:var(--safe-left);top:var(--safe-top);margin:0;padding:0;max-width:none;image-rendering:pixelated;touch-action:none;background:#0d0814}
 </style></head><body><canvas id="c"></canvas><script>
 'use strict';
 /* OPT v133.1 · optimización conservadora: compactación in-place de partículas, luces y entidades para evitar arrays temporales en cada frame. Sin cambiar reglas, valores, controles ni efectos visuales. */
@@ -268,15 +268,20 @@ const biAt=n=>{const l=Math.max(1,Math.min(10,LV())),b=BI[((((n-1)/5)|0)%4+4)%4]
 let fracN=0;const remn=n=>(meta.md|0)==0&&LV()>=7?RG[Math.floor(rng(n*977+LV()*31+fracN*53)()*(LV()-1))]:null;
 const DS=BAL.comun.dmgScale; // escala de daño/vida: todo el daño del jugador y toda la vida de enemigos se multiplican por DS
 function rs(){
-// Medir el viewport real: en una PWA móvil puede cambiar al ocultarse la barra del navegador
-// o al girar el dispositivo. La altura virtual sigue la proporción física para no dejar bandas.
-const vv=window.visualViewport,w=Math.max(1,Math.round(vv&&vv.width?vv.width:document.documentElement.clientWidth||innerWidth)),h=Math.max(1,Math.round(vv&&vv.height?vv.height:innerHeight));
+// iOS/PWA: usar el viewport visible y respetar las zonas seguras de notch y esquinas.
+// El fondo del documento cubre toda la pantalla; el canvas queda dentro del área segura.
+const vv=window.visualViewport,root=getComputedStyle(document.documentElement),px=v=>Math.max(0,parseFloat(root.getPropertyValue(v))||0);
+const layoutW=Math.max(1,Math.round(vv&&vv.width?vv.width:document.documentElement.clientWidth||innerWidth));
+const layoutH=Math.max(1,Math.round(vv&&vv.height?vv.height:innerHeight));
+const sl=px('--safe-left'),sr=px('--safe-right'),st=px('--safe-top'),sb=px('--safe-bottom');
+const w=Math.max(1,layoutW-sl-sr),h=Math.max(1,layoutH-st-sb);
 VH=Math.max(300,Math.round(VW*h/w));GH=VH-OY-BH;Z=Math.max(1.2,GH/WH);
-const k=Math.min(w/VW,h/VH),dpr=devicePixelRatio||1,rdpr=perfMode?Math.min(dpr,1):dpr;S=Math.max(1,Math.floor(k*rdpr));
-cv.style.width=(VW*k)+'px';cv.style.height=(VH*k)+'px';cv.width=VW*S;cv.height=VH*S;
+const k=Math.min(w/VW,h/VH),dpr=devicePixelRatio||1,rdpr=perfMode?Math.min(dpr,1):dpr;S=Math.max(1,Math.round(k*rdpr));
+cv.style.left=sl+'px';cv.style.top=st+'px';cv.style.width=(VW*k)+'px';cv.style.height=(VH*k)+'px';cv.width=VW*S;cv.height=VH*S;
 VG=x.createRadialGradient(88,GH/2,GH*.3,88,GH/2,GH*.75);VG.addColorStop(0,'rgba(0,0,0,0)');VG.addColorStop(1,'rgba(0,0,0,.5)');VR=null;tbg=null}
 addEventListener('resize',rs,{passive:true});
-addEventListener('orientationchange',()=>setTimeout(rs,80),{passive:true});
+addEventListener('orientationchange',()=>setTimeout(rs,120),{passive:true});
+addEventListener('pageshow',()=>setTimeout(rs,80),{passive:true});
 if(window.visualViewport){visualViewport.addEventListener('resize',rs,{passive:true});visualViewport.addEventListener('scroll',rs,{passive:true})}
 rs();
 // ---------- audio ----------
