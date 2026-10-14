@@ -2,7 +2,7 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
-<title>GRENDARK RISE · Pantalla adaptable v143</title>
+<title>GRENDARK RISE · Pantalla adaptable v144</title>
  
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -29,8 +29,10 @@ if ("serviceWorker" in navigator) {
 :root[data-theme="dark"]{--bg:#0d0814;--fg:#e8e0f5}
 html,body{width:100%;height:100%;min-width:100%;min-height:100%;margin:0;padding:0;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--fg);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;box-sizing:border-box}
 html{height:100%;height:100vh;height:100dvh;background:var(--bg)}
-body{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:block;background:var(--bg)}
-canvas{position:fixed;display:block;left:var(--safe-left);top:var(--safe-top);margin:0;padding:0;max-width:none;image-rendering:pixelated;touch-action:none;background:#0d0814}
+body{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;min-height:100%;display:block;background:var(--bg)}
+/* El fondo sí cubre toda la pantalla; el canvas se adapta al área útil sin dejar una franja sin pintar. */
+body::before{content:"";position:fixed;inset:-2px;background:#0d0814;z-index:0;pointer-events:none}
+canvas{position:fixed;display:block;left:0;top:0;margin:0;padding:0;max-width:none;image-rendering:pixelated;touch-action:none;background:#0d0814;z-index:1}
 </style></head><body><canvas id="c"></canvas><script>
 'use strict';
 /* OPT v133.1 · optimización conservadora: compactación in-place de partículas, luces y entidades para evitar arrays temporales en cada frame. Sin cambiar reglas, valores, controles ni efectos visuales. */
@@ -268,20 +270,30 @@ const biAt=n=>{const l=Math.max(1,Math.min(10,LV())),b=BI[((((n-1)/5)|0)%4+4)%4]
 let fracN=0;const remn=n=>(meta.md|0)==0&&LV()>=7?RG[Math.floor(rng(n*977+LV()*31+fracN*53)()*(LV()-1))]:null;
 const DS=BAL.comun.dmgScale; // escala de daño/vida: todo el daño del jugador y toda la vida de enemigos se multiplican por DS
 function rs(){
-// iOS/PWA: usar el viewport visible y respetar las zonas seguras de notch y esquinas.
-// El fondo del documento cubre toda la pantalla; el canvas queda dentro del área segura.
+// iOS: innerHeight suele incluir más área que visualViewport cuando Safari muestra
+// la barra inferior. En PWA standalone usamos el viewport disponible y escuchamos
+// ambos cambios. El fondo CSS cubre cualquier zona reservada del sistema.
 const vv=window.visualViewport,root=getComputedStyle(document.documentElement),px=v=>Math.max(0,parseFloat(root.getPropertyValue(v))||0);
-const layoutW=Math.max(1,Math.round(vv&&vv.width?vv.width:document.documentElement.clientWidth||innerWidth));
-const layoutH=Math.max(1,Math.round(vv&&vv.height?vv.height:innerHeight));
+const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const layoutW=Math.max(1,Math.round(Math.max(document.documentElement.clientWidth||0,innerWidth||0,vv&&vv.width||0)));
+let measuredH=Math.max(document.documentElement.clientHeight||0,innerHeight||0,vv&&vv.height||0);
+// screen.height solo es un fallback para la app instalada; no usarlo en Safari normal,
+// donde incluye la interfaz del navegador y podría ocultar parte del juego tras ella.
+if(standalone&&screen&&screen.height){const sh=Math.round(screen.height/(devicePixelRatio>1.5?devicePixelRatio:1));measuredH=Math.max(measuredH,Math.min(sh,measuredH+120))}
+const layoutH=Math.max(1,Math.round(measuredH));
 const sl=px('--safe-left'),sr=px('--safe-right'),st=px('--safe-top'),sb=px('--safe-bottom');
+// El canvas ocupa el área segura; el fondo de página se extiende por debajo de ella.
 const w=Math.max(1,layoutW-sl-sr),h=Math.max(1,layoutH-st-sb);
 VH=Math.max(300,Math.round(VW*h/w));GH=VH-OY-BH;Z=Math.max(1.2,GH/WH);
-const k=Math.min(w/VW,h/VH),dpr=devicePixelRatio||1,rdpr=perfMode?Math.min(dpr,1):dpr;S=Math.max(1,Math.round(k*rdpr));
+const k=Math.min(w/VW,h/VH),dpr=devicePixelRatio||1,rdpr=perfMode?Math.min(dpr,1):Math.min(dpr,2.5),S=Math.max(1,Math.round(k*rdpr));
 cv.style.left=sl+'px';cv.style.top=st+'px';cv.style.width=(VW*k)+'px';cv.style.height=(VH*k)+'px';cv.width=VW*S;cv.height=VH*S;
 VG=x.createRadialGradient(88,GH/2,GH*.3,88,GH/2,GH*.75);VG.addColorStop(0,'rgba(0,0,0,0)');VG.addColorStop(1,'rgba(0,0,0,.5)');VR=null;tbg=null}
+
 addEventListener('resize',rs,{passive:true});
 addEventListener('orientationchange',()=>setTimeout(rs,120),{passive:true});
 addEventListener('pageshow',()=>setTimeout(rs,80),{passive:true});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(rs,80)});
+if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',()=>setTimeout(rs,120));
 if(window.visualViewport){visualViewport.addEventListener('resize',rs,{passive:true});visualViewport.addEventListener('scroll',rs,{passive:true})}
 rs();
 // ---------- audio ----------
