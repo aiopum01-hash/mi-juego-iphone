@@ -2,7 +2,7 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
-<title>GRENDARK RISE · Profundidad, impacto y HUD adaptable</title>
+<title>GRENDARK RISE · Pantalla adaptable</title>
  
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -24,13 +24,13 @@ if ("serviceWorker" in navigator) {
 </script>
 
 <style>
-:root{--bg:#cfc8e0;--fg:#1b1228;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#cfc8e0;--fg:#1b1228;box-sizing:border-box}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0814;--fg:#e8e0f5}}
 :root[data-theme="dark"]{--bg:#0d0814;--fg:#e8e0f5}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--fg);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-body{display:flex;align-items:center;justify-content:center}
-canvas{display:block;image-rendering:auto;touch-action:none}
+html,body{width:100%;height:100%;min-width:100%;min-height:100%;margin:0;padding:0;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--fg);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html{height:100vh;height:100dvh}
+body{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center}
+canvas{display:block;flex:none;margin:0;padding:0;max-width:none;image-rendering:pixelated;touch-action:none}
 </style></head><body><canvas id="c"></canvas><script>
 'use strict';
 /* OPT v133.1 · optimización conservadora: compactación in-place de partículas, luces y entidades para evitar arrays temporales en cada frame. Sin cambiar reglas, valores, controles ni efectos visuales. */
@@ -267,11 +267,18 @@ const biAt=n=>{const l=Math.max(1,Math.min(10,LV())),b=BI[((((n-1)/5)|0)%4+4)%4]
 /* Acto III: restos de regiones anteriores. Solo suelo/decoración; los obstáculos y la colisión no cambian. */
 let fracN=0;const remn=n=>(meta.md|0)==0&&LV()>=7?RG[Math.floor(rng(n*977+LV()*31+fracN*53)()*(LV()-1))]:null;
 const DS=BAL.comun.dmgScale; // escala de daño/vida: todo el daño del jugador y toda la vida de enemigos se multiplican por DS
-function rs(){const w=document.body.clientWidth||innerWidth,h=document.body.clientHeight||innerHeight;
-VH=cl(Math.round(VW*h/w),310,400);GH=VH-OY-BH;Z=Math.max(1.2,GH/WH);
-const k=Math.min(w/VW,h/VH),dpr=devicePixelRatio||1,rdpr=perfMode?Math.min(dpr,1):dpr;S=Math.max(1,Math.floor(k*rdpr));cv.style.width=VW*k+'px';cv.style.height=VH*k+'px';cv.width=VW*S;cv.height=VH*S;
+function rs(){
+// Medir el viewport real: en una PWA móvil puede cambiar al ocultarse la barra del navegador
+// o al girar el dispositivo. La altura virtual sigue la proporción física para no dejar bandas.
+const vv=window.visualViewport,w=Math.max(1,Math.round(vv&&vv.width?vv.width:document.documentElement.clientWidth||innerWidth)),h=Math.max(1,Math.round(vv&&vv.height?vv.height:innerHeight));
+VH=Math.max(300,Math.round(VW*h/w));GH=VH-OY-BH;Z=Math.max(1.2,GH/WH);
+const k=Math.min(w/VW,h/VH),dpr=devicePixelRatio||1,rdpr=perfMode?Math.min(dpr,1):dpr;S=Math.max(1,Math.floor(k*rdpr));
+cv.style.width=(VW*k)+'px';cv.style.height=(VH*k)+'px';cv.width=VW*S;cv.height=VH*S;
 VG=x.createRadialGradient(88,GH/2,GH*.3,88,GH/2,GH*.75);VG.addColorStop(0,'rgba(0,0,0,0)');VG.addColorStop(1,'rgba(0,0,0,.5)');VR=null;tbg=null}
-addEventListener('resize',rs);rs();
+addEventListener('resize',rs,{passive:true});
+addEventListener('orientationchange',()=>setTimeout(rs,80),{passive:true});
+if(window.visualViewport){visualViewport.addEventListener('resize',rs,{passive:true});visualViewport.addEventListener('scroll',rs,{passive:true})}
+rs();
 // ---------- audio ----------
 let AC,MB,SB,TB,RV,RS_,SS,NB,sxT=0,sxN=0,hbT=0,ASRC=null,AIMP=0,sLoad=0,MBc=.85,bossE=null;
 /* v122 · audio espacial: paneo estéreo moderado (menor en móvil) y atenuación por distancia con suelo para que los sonidos importantes se oigan siempre */
@@ -533,11 +540,47 @@ rows.forEach((r,j)=>{for(let i=0;i<w;i++){const ch=r[i];if(ch&&ch!='.'){g.fillSt
 q.drawImage(c,0,0);q.globalCompositeOperation='source-in';q.fillStyle='#fff';q.fillRect(0,0,w,h);return{c,f,w,h}}
 const P1=['...kkkk...','..kbbbbk..','.kbbbbbbk.','.kbttttbk.','.kbyttybk.','..kbbbbk..','.kbbnnbbk.','.kbbnnbbk.','.kbbbbbbk.','..kk..kk..'];
 const H=['.kk.kk.','kwrkrrk','krrrrrk','.krrrk.','..krk..','...k...'];
-const HERO_PAL={k:'#100a1d',C:'#24143f',L:'#3c2464',Q:'#080611',E:'#f4dcff',V:'#a855f7',M:'#6b21a8',F:'#171027'};
-// Héroe del modo normal: sprite de 13×12 px (un aumento discreto frente al 11×10 original).
-// Conserva el muestreo pixelado del juego; el arma sigue dependiendo del equipo seleccionado.
-const HERO_IDLE=['....kkkk.....','...kCCCCCk...','..kkCLLLCkk..','.kkCLQQQLCkk.','kkCLQEEQLCkk.','kkCLQQQLCkk..','..kkCLLLCkk..','.kkCCLLLCCkk.','..kCCLLLCCk..','...kk..kk....','...kC..Ck....','....k..k.....'];
-const HERO_STEP=['....kkkk.....','...kCCCCCk...','..kkCLLLCkk..','.kkCLQQQLCkk.','kkCLQEEQLCkk.','kkCLQQQLCkk..','..kkCLLLCkk..','..kCCLLLCCkk.','.kkCLCLCCLk..','...kk...kk...','..kC....Ck...','..kk....kk...'];
+const HERO_PAL={k:'#100a1d',C:'#24143f',L:'#4a2878',Q:'#080611',E:'#f4dcff',V:'#c084fc',M:'#7135ad',F:'#171027'};
+// Protagonista del modo normal: pixel art nativo de 16x18 px. Solo dos poses reales
+// (reposo/paso), para encajar con el sistema de animación existente del juego.
+const HERO_IDLE=[
+'......kkkk......',
+'....kkCCCCkk....',
+'...kCCLLLLCCk...',
+'..kCCLLVVLLCCk..',
+'.kCCLLLLLLLCCk..',
+'kCCLLLLQQQQLCCk.',
+'kCCLQEEQQEQLCCk.',
+'kCCLLQQQQQQLCCk.',
+'.kCCLLQQQQLCCk..',
+'..kCCLLLLLLCCk..',
+'.kCCLMMMMMCCk...',
+'kCCLMMMMMMCCLk..',
+'kCCLLMMMLLLCCk..',
+'kCCLMMkMMLLLCCk.',
+'.kCMMkkkMMCCk...',
+'..kMMk..kMMk....',
+'...kk....kk.....',
+'...kCk..kCk.....'];
+const HERO_STEP=[
+'......kkkk......',
+'....kkCCCCkk....',
+'...kCCLLLLCCk...',
+'..kCCLLVVLLCCk..',
+'.kCCLLLLLLLCCk..',
+'kCCLLLLQQQQLCCk.',
+'kCCLQEEQQEQLCCk.',
+'kCCLLQQQQQQLCCk.',
+'.kCCLLQQQQLCCk..',
+'..kCCLLLLLLCCk..',
+'.kCCLMMMMMCCk...',
+'kCCLMMMMMMCCLk..',
+'kCCLLMMMLLLCCk..',
+'.kCMMkMMMLLLCCk.',
+'..kMMkkkMMCCk...',
+'...kMMk..kMMk...',
+'....kk...kk.....',
+'...kCk..kCk.....'];
 const HERO_SPRITES=[mk(HERO_IDLE,HERO_PAL),mk(HERO_STEP,HERO_PAL)];
 const SP={pl:[mk(P1),mk(P1.slice(0,12).concat('..Q...Q..'))],
 sl:mk(['...kkkk...','..kggggk..','.kggggggk.','.kwkggkwk.','kgggggggdk','kgggggggdk','.kddddddk.','..kkkkkk..']),
@@ -3145,7 +3188,7 @@ function cmDraw(){if(meta.md!=2||cm<0||state=='pick'||state=='sp')return;tx(CM[c
 {const w=60,f=cl(cmR/chRot(),0,1);x.fillStyle='rgba(0,0,0,.5)';x.fillRect(88-w/2,OY+12,w,2);x.fillStyle=f<.25&&((tm*8|0)%2)?'#fff':'#c084fc';x.fillRect(88-w/2,OY+12,w*f,2);const fz=pl?frz(pl):0;if(TELON&&state=='play')telDraw();if(fz>0&&state=='play')tx('FRENESÍ +'+Math.round(fz*100)+'%',4,OY+19,'#ffb020',5.5,'left');if(stT>0){x.fillStyle='rgba(255,40,40,'+(.07+.04*Math.sin(tm*14))+')';x.fillRect(0,OY,VW,GH);tx('STAMPIDA',88,OY+22,'#ff5d6c',5.5)}}
 for(const m of mtr){const X=(m.x-cam.x)*Z,Y=OY+(m.y-cam.y)*Z;x.strokeStyle='rgba(255,90,40,'+(.4+.4*Math.sin(tm*20))+')';x.lineWidth=1.5;x.beginPath();x.arc(X,Y,17*Z,0,7);x.stroke();x.fillStyle='rgba(255,120,40,.25)';x.fill();x.fillStyle='#8b8ba7';x.fillRect(X-3,Y-m.t*70-3,6,6)}
 if(cm==7&&pl&&state=='play'){const[Xr,Rr]=BAL.comun.chaosEffects.darkRadius,v_=vp(),X=(v_.x-cam.x)*Z,Y=OY+(v_.y-cam.y)*Z,g=x.createRadialGradient(X,Y,Xr,X,Y,Rr);g.addColorStop(0,'rgba(5,3,10,0)');g.addColorStop(1,'rgba(5,3,10,.93)');x.fillStyle=g;x.fillRect(0,OY,VW,GH)}}
-function dPl(X,Y,z,w){const b=Math.sin(tm*3)*z*.3;sh(X,Y,z*3.5);ds(SP.pl[(tm*6|0)%2],X,Y+b,{sx:z,sy:z});if(w)ds(WPN[meta.we].sp,X+z*3.4,Y-z*1.4+b,{sx:z*.6,sy:z*.6})}
+function dPl(X,Y,z,w){const b=Math.sin(tm*3)*z*.3,fr=(meta.md|0)===0?HERO_SPRITES[(tm*6|0)%2]:SP.pl[(tm*6|0)%2];sh(X,Y,z*3.5);ds(fr,X,Y+b,{sx:z,sy:z});if(w)ds(WPN[meta.we].sp,X+z*3.4,Y-z*1.4+b,{sx:z*.6,sy:z*.6})}
 // ---- iconos de modalidad: NORMAL = escudo y espada · INFINITO = lemniscata con cometa · CAOS = vórtice de esquirlas ----
 // (se usan en el menú de modalidades y en el portal de la pantalla principal; radio aprox. 25)
 // ---- Emblemas de modo (menú principal y tarjetas): radio nativo ~26-29 ----
