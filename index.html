@@ -1,15 +1,13 @@
-<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
-<title>GRENDARK RISE · Pantalla adaptable v144</title>
+<title>GRENDARK RISE · Pantalla adaptable v146</title>
  
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#101020">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mi Juego">
 
 <script>
@@ -33,7 +31,7 @@ body{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;min-height:10
 /* El fondo sí cubre toda la pantalla; el canvas se adapta al área útil sin dejar una franja sin pintar. */
 body::before{content:"";position:fixed;inset:-2px;background:#0d0814;z-index:0;pointer-events:none}
 canvas{position:fixed;display:block;left:0;top:0;margin:0;padding:0;max-width:none;image-rendering:pixelated;touch-action:none;background:#0d0814;z-index:1}
-</style></head><body><canvas id="c"></canvas><script>
+</style></head><body><canvas id="c" width="352" height="604" style="left: 0px; top: 0px; width: 390px; height: 669.204545px;"></canvas><script>
 'use strict';
 /* OPT v133.1 · optimización conservadora: compactación in-place de partículas, luces y entidades para evitar arrays temporales en cada frame. Sin cambiar reglas, valores, controles ni efectos visuales. */
 /* v130 · animación al conseguir una caja en partida (salta, flota y vuela hacia ti; sin aviso de texto) · v129 · sin Sala del tesoro, Cofre maldito, Altar de sangre, Altar ni Cofre sospechoso · tienda aleatoria (mejoras 2,5 veces más probables) · v128 · 2 poderes nuevos (Crono, Señuelo) y 3 de 5 al empezar · 5 armas nuevas (sierra bumerán, lobo espectral, vórtice, charco de brea, semilla carnívora) · 3 huecos de arma (salas 5, 10 y 15) · pausa con las 3 armas · v127 · sin salas de altar ni de ofrendas · v126 · el retrato del jefe en la barra de vida usa su sprite real · v125 · efectos ambientales por bioma (brasas, esporas, nieve, niebla, calor, vacío) · secuencia larga de muerte de jefes · v120 · fichas de jefe del nivel 8 (Centinela, Artillero, Caballero Corrupto, Mariscal Caído) · escudos por multiplicador de daño (ya no congelan la IA con sp0) · v119 · fichas de jefe del nivel 7 (Eco del Vacío, Sombra Hambrienta, Espejo Roto, Devorador del Vacío) · v118 · fichas de jefe del nivel 6 (Heraldo de la Ventisca, Águila de Escarcha, Guardián Congelado, Reina de la Escarcha) · v117 · fichas de jefe del nivel 5 (Capataz, Artillero, Gólem, Fundidor) · v116 · fichas de jefe del nivel 4 (Hongo, Araña, Planta, Madre de las Esporas) · v115 · fichas de jefe del nivel 3 (Sepulturero, Nigromante, General, Matriarca) · v114 · fichas de jefe del nivel 2 (Vigía, Tejedora, Ojo del Tránsito, Señor del Umbral) · v113 · bestiario del nivel 1 con los nombres de la ficha · v112 · fichas de jefe del nivel 1 (intro, fases, mecánicas propias, golpe, muerte, recompensa) · GRENDARK RISE v104 · bestiario con los 36 jefes de los niveles 2-10 (selector por nivel) · sprites propios para los jefes del Umbral, la Cripta y el Pantano · estructura por salas (variante de bioma cada 5, sala especial garantizada en 8 y 18, tres ejes de dificultad) · terreno real en Grendark · plataformas sobre vacío (nivel 7) · avispa (nivel 4) · copias espectrales concretas (nivel 9) · variantes en el bestiario
@@ -284,9 +282,9 @@ const layoutH=Math.max(1,Math.round(measuredH));
 const sl=px('--safe-left'),sr=px('--safe-right'),st=px('--safe-top'),sb=px('--safe-bottom');
 // El canvas ocupa el área segura; el fondo de página se extiende por debajo de ella.
 const w=Math.max(1,layoutW-sl-sr),h=Math.max(1,layoutH-st-sb);
-VH=Math.max(300,Math.round(VW*h/w));GH=VH-OY-BH;Z=Math.max(1.2,GH/WH);
-const k=Math.min(w/VW,h/VH),dpr=devicePixelRatio||1,rdpr=perfMode?Math.min(dpr,1):Math.min(dpr,2.5),S=Math.max(1,Math.round(k*rdpr));
-cv.style.left=sl+'px';cv.style.top=st+'px';cv.style.width=(VW*k)+'px';cv.style.height=(VH*k)+'px';cv.width=VW*S;cv.height=VH*S;
+VH=Math.min(440,Math.max(300,Math.round(VW*h/w)));GH=VH-OY-BH;Z=Math.max(1.2,GH/WH);
+const k=Math.min(w/VW,h/VH),dpr=devicePixelRatio||1,rdpr=perfMode?Math.min(dpr,1):Math.min(dpr,2.5);S=Math.max(1,Math.round(k*rdpr));
+const cw=VW*k,ch=VH*k;cv.style.left=(sl+Math.max(0,Math.round((w-cw)/2)))+'px';cv.style.top=(st+Math.max(0,Math.round((h-ch)/2)))+'px';cv.style.width=cw+'px';cv.style.height=ch+'px';cv.width=VW*S;cv.height=VH*S;
 VG=x.createRadialGradient(88,GH/2,GH*.3,88,GH/2,GH*.75);VG.addColorStop(0,'rgba(0,0,0,0)');VG.addColorStop(1,'rgba(0,0,0,.5)');VR=null;tbg=null}
 
 addEventListener('resize',rs,{passive:true});
@@ -557,47 +555,38 @@ rows.forEach((r,j)=>{for(let i=0;i<w;i++){const ch=r[i];if(ch&&ch!='.'){g.fillSt
 q.drawImage(c,0,0);q.globalCompositeOperation='source-in';q.fillStyle='#fff';q.fillRect(0,0,w,h);return{c,f,w,h}}
 const P1=['...kkkk...','..kbbbbk..','.kbbbbbbk.','.kbttttbk.','.kbyttybk.','..kbbbbk..','.kbbnnbbk.','.kbbnnbbk.','.kbbbbbbk.','..kk..kk..'];
 const H=['.kk.kk.','kwrkrrk','krrrrrk','.krrrk.','..krk..','...k...'];
-const HERO_PAL={k:'#100a1d',C:'#24143f',L:'#4a2878',Q:'#080611',E:'#f4dcff',V:'#c084fc',M:'#7135ad',F:'#171027'};
-// Protagonista del modo normal: pixel art nativo de 16x18 px. Solo dos poses reales
-// (reposo/paso), para encajar con el sistema de animación existente del juego.
+const HERO_PAL={k:'#100a1d',C:'#24143f',L:'#4a2878',Q:'#080611',V:'#c084fc',W:'#d9c2ff',G:'#ffe27a',S:'#e5484d',s:'#9f2a3a',B:'#8a5a2b',Y:'#ffd23f'};
+// Protagonista del modo normal (v146): encapuchado de capucha puntiaguda, ojos dorados, bufanda roja y cinturón. 12x14 px, dos poses (reposo/paso).
 const HERO_IDLE=[
-'......kkkk......',
-'....kkCCCCkk....',
-'...kCCLLLLCCk...',
-'..kCCLLVVLLCCk..',
-'.kCCLLLLLLLCCk..',
-'kCCLLLLQQQQLCCk.',
-'kCCLQEEQQEQLCCk.',
-'kCCLLQQQQQQLCCk.',
-'.kCCLLQQQQLCCk..',
-'..kCCLLLLLLCCk..',
-'.kCCLMMMMMCCk...',
-'kCCLMMMMMMCCLk..',
-'kCCLLMMMLLLCCk..',
-'kCCLMMkMMLLLCCk.',
-'.kCMMkkkMMCCk...',
-'..kMMk..kMMk....',
-'...kk....kk.....',
-'...kCk..kCk.....'];
+'.....kk.....',
+'....kWLk....',
+'...kLVLLk...',
+'..kLLLLLCk..',
+'.kLLkkkkLCk.',
+'kCLkQQQQQQkC',
+'kCLkQGQQGQkC',
+'kCLkQQQQQQkC',
+'.kCLkQQQQkCk',
+'.kCSSSSSSSCk',
+'.kCLLLLLLSSk',
+'.kCBBYBBLSsk',
+'..kCLLLLCk..',
+'..kkk..kkk..'];
 const HERO_STEP=[
-'......kkkk......',
-'....kkCCCCkk....',
-'...kCCLLLLCCk...',
-'..kCCLLVVLLCCk..',
-'.kCCLLLLLLLCCk..',
-'kCCLLLLQQQQLCCk.',
-'kCCLQEEQQEQLCCk.',
-'kCCLLQQQQQQLCCk.',
-'.kCCLLQQQQLCCk..',
-'..kCCLLLLLLCCk..',
-'.kCCLMMMMMCCk...',
-'kCCLMMMMMMCCLk..',
-'kCCLLMMMLLLCCk..',
-'.kCMMkMMMLLLCCk.',
-'..kMMkkkMMCCk...',
-'...kMMk..kMMk...',
-'....kk...kk.....',
-'...kCk..kCk.....'];
+'.....kk.....',
+'....kWLk....',
+'...kLVLLk...',
+'..kLLLLLCk..',
+'.kLLkkkkLCk.',
+'kCLkQQQQQQkC',
+'kCLkQGQQGQkC',
+'kCLkQQQQQQkC',
+'.kCLkQQQQkCk',
+'.kCSSSSSSSCk',
+'.kCLLLLLLSSk',
+'.kCBBYBBLSsk',
+'..kCkk.LLCk.',
+'...kk.kkkk..'];
 const HERO_SPRITES=[mk(HERO_IDLE,HERO_PAL),mk(HERO_STEP,HERO_PAL)];
 const SP={pl:[mk(P1),mk(P1.slice(0,12).concat('..Q...Q..'))],
 sl:mk(['...kkkk...','..kggggk..','.kggggggk.','.kwkggkwk.','kgggggggdk','kgggggggdk','.kddddddk.','..kkkkkk..']),
@@ -2992,7 +2981,7 @@ g=x.createLinearGradient(X-R,Y-R,X+R,Y+R);g.addColorStop(0,'#fff1a8');g.addColor
 x.beginPath();x.arc(X,Y,4.3,0,7);x.fillStyle='#4a2205';x.fill();g=x.createRadialGradient(X-1,Y-1,.5,X,Y,3.2);g.addColorStop(0,'#2a2140');g.addColorStop(1,'#0d0814');x.beginPath();x.arc(X,Y,3.1,0,7);x.fillStyle=g;x.fill();
 x.strokeStyle='rgba(255,255,255,.6)';x.lineWidth=1;x.beginPath();x.arc(X,Y,6.2,3.6,4.7);x.stroke()}
 function hb(){const by=VH*.82;
-x.save();x.shadowColor='rgba(0,0,0,.6)';x.shadowBlur=3;rb(3,3,26,26,7,'#2b2142');x.restore();x.save();rb(3,3,26,26,7);x.clip();dPl(16,26,2);x.restore();rb(3,3,26,26,7,0,'#ffd23f');
+x.save();x.shadowColor='rgba(0,0,0,.6)';x.shadowBlur=3;rb(3,3,26,26,7,'#2b2142');x.restore();x.save();rb(3,3,26,26,7);x.clip();dPl(16,27,1.6);x.restore();rb(3,3,26,26,7,0,'#ffd23f');
 dGear(VW-16,16);
 {const pn=partyCount();if(pn>1){x.save();x.shadowColor='#7ee0cf';x.shadowBlur=4;x.fillStyle='#0d0814';x.beginPath();x.arc(24.2,24.2,5,0,7);x.fill();x.restore();x.strokeStyle='#7ee0cf';x.lineWidth=1;x.beginPath();x.arc(24.2,24.2,5,0,7);x.stroke();tx(''+pn,24.2,24.6,'#fff',5.6)}}
 }
@@ -3294,7 +3283,7 @@ rk=meta.runs>=50?'LEYENDA':meta.runs>=25?'CAZADOR':meta.runs>=10?'VETERANO':meta
 x.save();x.shadowColor=mc;x.shadowBlur=8;rb(52,26,72,68,10,'#1a1229');x.restore();
 x.save();rb(52,26,72,68,10);x.clip();let g=x.createRadialGradient(88,60,4,88,60,44);g.addColorStop(0,mc+'66');g.addColorStop(1,'#1a1229');x.fillStyle=g;x.fillRect(52,26,72,68);
 x.globalAlpha=ga*.6;x.fillStyle=mc;for(let k=0;k<6;k++)x.fillRect(58+(k*37)%56,92-(tm*14+k*17)%66,1.5,1.5);x.globalAlpha=ga;
-x.fillStyle='rgba(255,255,255,.07)';x.beginPath();x.ellipse(88,82,24,6,0,0,7);x.fill();dPl(88,80,5,1);x.restore();rb(52,26,72,68,10,0,mc);uCorner(48,22,80,76,'#ffd23f');
+x.fillStyle='rgba(255,255,255,.07)';x.beginPath();x.ellipse(88,82,24,6,0,0,7);x.fill();dPl(88,82,3.6,1);x.restore();rb(52,26,72,68,10,0,mc);uCorner(48,22,80,76,'#ffd23f');
 g=x.createLinearGradient(0,89,0,101);g.addColorStop(0,'#c93a40');g.addColorStop(1,'#7a1d2e');rb(58,89,60,12,3,g,'#ffd23f');tx('EL VIAJERO',88,95.5,'#fff',6.5);tx('◆ '+rk+' ◆',88,109,'#ffd23f',5.8);
 [['ALMAS',meta.souls,'#c084fc'],['RÉCORD',meta.best,'#ffd23f'],['MEJOR SALA',meta.bestRoom,'#5eb4ff'],['PARTIDAS',meta.runs,'#e8e0f5'],['BAJAS',meta.tk,'#e5484d'],['LOGROS',na+'/'+L.length,'#4ade80']].forEach((e,i)=>{const X=9+(i%3)*54,Y=118+(i/3|0)*24;uCard(X,Y,50,21,e[2]);tx(''+e[1],X+27,Y+8,e[2],8);tx(e[0],X+27,Y+16.5,'#8b8ba7',4.4)});
 tx('LOGROS',88,170,'#c084fc',7);x.fillStyle='#4a3d6b';x.fillRect(14,170,46,1);x.fillRect(116,170,46,1);
