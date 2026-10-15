@@ -1,7 +1,7 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
-<title>GRENDARK RISE · Pantalla adaptable v148</title>
+<title>GRENDARK RISE · Pantalla adaptable v149</title>
  
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -31,7 +31,7 @@ body{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;min-height:10
 /* El fondo sí cubre toda la pantalla; el canvas se adapta al área útil sin dejar una franja sin pintar. */
 body::before{content:"";position:fixed;inset:-2px;background:#0d0814;z-index:0;pointer-events:none}
 canvas{position:fixed;display:block;left:0;top:0;margin:0;padding:0;max-width:none;image-rendering:pixelated;touch-action:none;background:#0d0814;z-index:1}
-</style></head><body><canvas id="c" style="left: 0px; top: 0px; width: 390px; height: 669.204545px;"></canvas><script>
+</style></head><body><canvas id="c" width="352" height="604" style="left: 0px; top: 0px; width: 390px; height: 669.204545px;"></canvas><script>
 'use strict';
 /* OPT v133.1 · optimización conservadora: compactación in-place de partículas, luces y entidades para evitar arrays temporales en cada frame. Sin cambiar reglas, valores, controles ni efectos visuales. */
 /* v130 · animación al conseguir una caja en partida (salta, flota y vuela hacia ti; sin aviso de texto) · v129 · sin Sala del tesoro, Cofre maldito, Altar de sangre, Altar ni Cofre sospechoso · tienda aleatoria (mejoras 2,5 veces más probables) · v128 · 2 poderes nuevos (Crono, Señuelo) y 3 de 5 al empezar · 5 armas nuevas (sierra bumerán, lobo espectral, vórtice, charco de brea, semilla carnívora) · 3 huecos de arma (salas 5, 10 y 15) · pausa con las 3 armas · v127 · sin salas de altar ni de ofrendas · v126 · el retrato del jefe en la barra de vida usa su sprite real · v125 · efectos ambientales por bioma (brasas, esporas, nieve, niebla, calor, vacío) · secuencia larga de muerte de jefes · v120 · fichas de jefe del nivel 8 (Centinela, Artillero, Caballero Corrupto, Mariscal Caído) · escudos por multiplicador de daño (ya no congelan la IA con sp0) · v119 · fichas de jefe del nivel 7 (Eco del Vacío, Sombra Hambrienta, Espejo Roto, Devorador del Vacío) · v118 · fichas de jefe del nivel 6 (Heraldo de la Ventisca, Águila de Escarcha, Guardián Congelado, Reina de la Escarcha) · v117 · fichas de jefe del nivel 5 (Capataz, Artillero, Gólem, Fundidor) · v116 · fichas de jefe del nivel 4 (Hongo, Araña, Planta, Madre de las Esporas) · v115 · fichas de jefe del nivel 3 (Sepulturero, Nigromante, General, Matriarca) · v114 · fichas de jefe del nivel 2 (Vigía, Tejedora, Ojo del Tránsito, Señor del Umbral) · v113 · bestiario del nivel 1 con los nombres de la ficha · v112 · fichas de jefe del nivel 1 (intro, fases, mecánicas propias, golpe, muerte, recompensa) · GRENDARK RISE v104 · bestiario con los 36 jefes de los niveles 2-10 (selector por nivel) · sprites propios para los jefes del Umbral, la Cripta y el Pantano · estructura por salas (variante de bioma cada 5, sala especial garantizada en 8 y 18, tres ejes de dificultad) · terreno real en Grendark · plataformas sobre vacío (nivel 7) · avispa (nivel 4) · copias espectrales concretas (nivel 9) · variantes en el bestiario
@@ -277,23 +277,18 @@ const layoutW=Math.max(1,Math.round(Math.max(document.documentElement.clientWidt
 let measuredH=Math.max(document.documentElement.clientHeight||0,innerHeight||0,vv&&vv.height||0);
 // screen.height solo es un fallback para la app instalada; no usarlo en Safari normal,
 // donde incluye la interfaz del navegador y podría ocultar parte del juego tras ella.
-const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-// v147 · iOS en modo app: si el navegador informa de un alto menor que la pantalla real (hueco inferior), usar el alto de pantalla (screen.* ya viene en px CSS).
-if(ios&&standalone&&screen){const sa=Math.max(screen.width||0,screen.height||0),sn=Math.min(screen.width||0,screen.height||0),sh=innerWidth>innerHeight?sn:sa;if(sh>measuredH&&sh-measuredH<=200)measuredH=sh}
 const layoutH=Math.max(1,Math.round(measuredH));
 const sl=px('--safe-left'),sr=px('--safe-right'),st=px('--safe-top'),sb=px('--safe-bottom');
 // El canvas ocupa el área segura; el fondo de página se extiende por debajo de ella.
-const w=Math.max(1,layoutW-sl-sr),h=Math.max(1,layoutH-st-(standalone?0:sb)); // v147 · en modo app el canvas llega hasta el borde inferior (sin franja vacía bajo el juego)
+const sc=innerWidth>innerHeight?Math.min(screen.width||0,screen.height||0):Math.max(screen.width||0,screen.height||0),
+// v149 · iOS en modo app puede dar una ventana más corta que la pantalla (p. ej. 797 de 844 px): lo que hay debajo no se puede pintar,
+// así que el canvas se ajusta EXACTAMENTE al alto real (sin salirse) y no se reserva además la zona del indicador de inicio.
+bi=(standalone&&sc&&layoutH<sc-10)?0:sb,
+w=Math.max(1,layoutW-sl-sr),h=Math.max(1,layoutH-st-bi);
 VH=Math.min(440,Math.max(300,Math.round(VW*h/w)));GH=VH-OY-BH;Z=Math.max(1.2,GH/WH);
 const k=Math.min(w/VW,h/VH),dpr=devicePixelRatio||1,rdpr=perfMode?Math.min(dpr,1):Math.min(dpr,2.5);S=Math.max(1,Math.round(k*rdpr));
 const cw=VW*k,ch=VH*k;cv.style.left=(sl+Math.max(0,Math.round((w-cw)/2)))+'px';cv.style.top=(st+Math.max(0,Math.round((h-ch)/2)))+'px';cv.style.width=cw+'px';cv.style.height=ch+'px';
-if(/[?&]dbg/.test(location.search)||(ios&&standalone)){const mk2=(id,css)=>{let d=document.getElementById(id);if(!d){d=document.createElement('div');d.id=id;d.style.cssText=css;document.body.appendChild(d)}return d};
-const pr=u=>{const e=document.createElement('div');e.style.cssText='position:fixed;left:0;top:0;width:1px;visibility:hidden;height:'+u;document.body.appendChild(e);const v=e.offsetHeight;e.remove();return v};
-const d=mk2('dbg','position:fixed;left:4px;right:4px;bottom:14px;z-index:9;font:10px monospace;color:#0f0;background:#000c;padding:2px 4px;pointer-events:none;white-space:normal');
-mk2('dbgR','position:fixed;left:0;right:0;bottom:0;height:3px;background:#f00;z-index:9;pointer-events:none');
-mk2('dbgG','position:fixed;left:0;width:30px;top:0;height:3px;background:#0f0;z-index:9;pointer-events:none');
-const b=cv.getBoundingClientRect();
-d.textContent=['inner '+innerWidth+'x'+innerHeight,'doc '+document.documentElement.clientWidth+'x'+document.documentElement.clientHeight,'vv '+(vv?Math.round(vv.width)+'x'+Math.round(vv.height)+' off'+Math.round(vv.offsetTop):'-'),'scr '+screen.width+'x'+screen.height,'lvh '+pr('100lvh')+' svh '+pr('100svh')+' dvh '+pr('100dvh'),'safe t'+st+' b'+sb,'meas '+layoutW+'x'+layoutH,'cv top'+Math.round(b.top)+' bot'+Math.round(b.bottom)+' '+Math.round(b.width)+'x'+Math.round(b.height),standalone?'APP':'web',ios?'iOS':'', 'v148'].join(' | ')}
+if(/[?&]dbg/.test(location.search)){let d=document.getElementById('dbg');if(!d){d=document.createElement('div');d.id='dbg';d.style.cssText='position:fixed;left:4px;bottom:4px;z-index:9;font:10px monospace;color:#0f0;background:#000a;padding:2px 4px;pointer-events:none';document.body.appendChild(d)}d.textContent=[innerWidth+'x'+innerHeight,'doc '+document.documentElement.clientWidth+'x'+document.documentElement.clientHeight,'vv '+(vv?Math.round(vv.width)+'x'+Math.round(vv.height):'-'),'scr '+screen.width+'x'+screen.height,'safe t'+st+' b'+sb,'cv '+Math.round(cw)+'x'+Math.round(ch)+' @'+Math.round(cv.offsetTop),standalone?'APP':'web'].join(' | ')}cv.width=VW*S;cv.height=VH*S;
 VG=x.createRadialGradient(88,GH/2,GH*.3,88,GH/2,GH*.75);VG.addColorStop(0,'rgba(0,0,0,0)');VG.addColorStop(1,'rgba(0,0,0,.5)');VR=null;tbg=null}
 
 addEventListener('resize',rs,{passive:true});
