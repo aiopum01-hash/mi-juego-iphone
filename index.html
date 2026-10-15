@@ -2,7 +2,7 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
-<title>GRENDARK RISE · Pantalla adaptable v165</title>
+<title>GRENDARK RISE · Pantalla adaptable v166</title>
  
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -3008,7 +3008,7 @@ if(tg&&(magnet||bd<MR)){const k=magnet?1:1-bd/MR,sp=magnet?Math.max(220,bd*7):50
 const nx=c.x+c.vx*dt,ny=c.y+c.vy*dt;if(wall(nx,c.y))c.vx*=-.5;else c.x=nx;if(wall(c.x,ny))c.vy*=-.5;else c.y=ny;c.x=cl(c.x,T+2,WW-T-2);c.y=cl(c.y,T+2,WH-T-2)}
 gd=gd.filter(c=>!c.d);
 if(gdAc.n&&(tm-gdAc.t>.3||!gd.length)){if(gdAc.q&&gdAc.n>1)num(gdAc.q.x,gdAc.q.y-12,'+'+gdAc.n,'#ffd23f',5);gdAc.n=0}}
-function gdFlush(give){if(give){let q=pls.find(p=>p.local&&p.hp>0)||pls.find(p=>p.hp>0)||pl;for(const c of gd)gdGive(q,c.v)}gd=[];gdAc.n=0}
+function gdFlush(give){if(give&&net.role!='client'){let q=pls.find(p=>p.local&&p.hp>0)||pls.find(p=>p.hp>0)||pl;for(const c of gd)gdGive(q,c.v)}gd=[];gdAc.n=0}
 function gdDraw(){for(const c of gd){const u=Math.min(1,c.t/.3),y=c.y-Math.abs(Math.sin(c.t*7))*Math.max(0,1-c.t*1.6)*5,w=Math.max(.7,Math.abs(Math.cos(tm*6+c.ph))*3.4);
 sh(c.x,c.y+2,2.4);x.save();x.globalAlpha=Math.min(1,u*2);
 if(c.m){x.shadowColor='#ffd23f';x.shadowBlur=5}
@@ -5726,7 +5726,7 @@ let FR_OK=0;try{localStorage.setItem('grendark_t','1');FR_OK=localStorage.getIte
 function frSave(){try{localStorage.setItem(FRK,JSON.stringify(FRI))}catch(e){}}frSave();
 const net={peer:null,ok:0,err:'',loading:0,loadTry:0,retry:0,init:0,role:'',conn:{},mem:[],hostC:null,hostCode:'',pres:{},sent:{},inv:null,pollT:0,snapT:0,inT:0,Gref:null,ended:0,lastEnd:'',pk:null,prevMd:null,nid:0,prev:{},cm:{},lastIn:'',frS:0,msg:'',msgT:0,dbg:FR_OK?'':'AVISO: EL CÓDIGO NO SE GUARDA EN ESTE NAVEGADOR',dbgT:0,openTo:0,fails:0,reconnections:{},reconnecting:0,resumeUntil:0,resumeTry:0,resumePending:0,partyT:0};
 const nDbg=t=>{net.dbg=String(t).slice(0,44);net.dbgT=tm;try{console.log('[red]',t)}catch(e){}};
-const NET_NA=[['en',()=>en,v=>{en=v}],['bl',()=>bl,v=>{bl=v}],['it',()=>it,v=>{it=v}],['hz',()=>hz,v=>{hz=v}],['lzs',()=>lzs,v=>{lzs=v}],['fq',()=>fq,v=>{fq=v}],['lts',()=>lts,v=>{lts=v}],['ghs',()=>ghs,v=>{ghs=v}],['cps',()=>cps,v=>{cps=v}],['rh',()=>rh,v=>{rh=v}],['XO',()=>XO,v=>{XO=v}],['XH',()=>XH,v=>{XH=v}]];
+const NET_NA=[['en',()=>en,v=>{en=v}],['bl',()=>bl,v=>{bl=v}],['it',()=>it,v=>{it=v}],['gd',()=>gd,v=>{gd=v}],['hz',()=>hz,v=>{hz=v}],['lzs',()=>lzs,v=>{lzs=v}],['fq',()=>fq,v=>{fq=v}],['lts',()=>lts,v=>{lts=v}],['ghs',()=>ghs,v=>{ghs=v}],['cps',()=>cps,v=>{cps=v}],['rh',()=>rh,v=>{rh=v}],['XO',()=>XO,v=>{XO=v}],['XH',()=>XH,v=>{XH=v}]];
 const NET_OWNSKIP={x:1,y:1,dt:1,dx:1,dy:1,mx:1,my:1,ix:1,iy:1,wk:1,wd:1,kx:1,ky:1,local:1,bot:1,rem:1,id:1,rstat:1,bp:1,tg:1,sn:1,inp:1,left:1,pkO:1,bt:1,nid:1};
 const NET_PSKIP={local:1,bot:1,rem:1,id:1,rstat:1,bp:1,tg:1,sn:1,inp:1,left:1,pkO:1,bt:1,nid:1,so:1,soC:1,rwO:1,stg:1};
 const nClean=s=>String(s||'AMIGO').replace(/[^\wÁÉÍÓÚÑáéíóúñ .\-]/g,'').trim().slice(0,12).toUpperCase()||'AMIGO';
@@ -6030,7 +6030,7 @@ function netCliTick(dt){
  netCliMove(dt);
  if(bcn&&bcn.k=='in')netCliCineTick(dt);
  for(const q of pls)if(q.tx!=null&&q!==pl){q.x+=(q.tx-q.x)*k;q.y+=(q.ty-q.y)*k}
- for(const a of[en,bl,it])for(const o of a)if(o.tx!=null&&!(bcn&&bcn.k=='in'&&o===bcn.e)){o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k}
+ for(const a of[en,bl,it,gd])for(const o of a)if(o.tx!=null&&!(bcn&&bcn.k=='in'&&o===bcn.e)){o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k}
  if(!bcn){const v=vp(),tx_=cl(v.x-VW/Z/2,0,WW-VW/Z),ty_=cl(v.y-GH/Z/2,0,WH-GH/Z),kk=Math.min(1,dt*9);cam.x+=(tx_-cam.x)*kk;cam.y+=(ty_-cam.y)*kk}}
 function netNameDraw(q){if(!q.nm||q.hp<=0||q.left||!runOn||!net.role)return;tx(q.nm,q.x,q.y-18,q.local?'#ffe27a':'#e8e0f5',4.4)}
 function netErr(e){if(!net.errLog){net.errLog=1;console.warn('render cliente',e)}}
