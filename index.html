@@ -1,7 +1,7 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
-<title>GRENDARK RISE · Pantalla adaptable v146</title>
+<title>GRENDARK RISE · Pantalla adaptable v147</title>
  
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -277,14 +277,17 @@ const layoutW=Math.max(1,Math.round(Math.max(document.documentElement.clientWidt
 let measuredH=Math.max(document.documentElement.clientHeight||0,innerHeight||0,vv&&vv.height||0);
 // screen.height solo es un fallback para la app instalada; no usarlo en Safari normal,
 // donde incluye la interfaz del navegador y podría ocultar parte del juego tras ella.
-if(standalone&&screen&&screen.height){const sh=Math.round(screen.height/(devicePixelRatio>1.5?devicePixelRatio:1));measuredH=Math.max(measuredH,Math.min(sh,measuredH+120))}
+const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+// v147 · iOS en modo app: si el navegador informa de un alto menor que la pantalla real (hueco inferior), usar el alto de pantalla (screen.* ya viene en px CSS).
+if(ios&&standalone&&screen){const sa=Math.max(screen.width||0,screen.height||0),sn=Math.min(screen.width||0,screen.height||0),sh=innerWidth>innerHeight?sn:sa;if(sh>measuredH&&sh-measuredH<=200)measuredH=sh}
 const layoutH=Math.max(1,Math.round(measuredH));
 const sl=px('--safe-left'),sr=px('--safe-right'),st=px('--safe-top'),sb=px('--safe-bottom');
 // El canvas ocupa el área segura; el fondo de página se extiende por debajo de ella.
-const w=Math.max(1,layoutW-sl-sr),h=Math.max(1,layoutH-st-sb);
+const w=Math.max(1,layoutW-sl-sr),h=Math.max(1,layoutH-st-(standalone?0:sb)); // v147 · en modo app el canvas llega hasta el borde inferior (sin franja vacía bajo el juego)
 VH=Math.min(440,Math.max(300,Math.round(VW*h/w)));GH=VH-OY-BH;Z=Math.max(1.2,GH/WH);
 const k=Math.min(w/VW,h/VH),dpr=devicePixelRatio||1,rdpr=perfMode?Math.min(dpr,1):Math.min(dpr,2.5);S=Math.max(1,Math.round(k*rdpr));
-const cw=VW*k,ch=VH*k;cv.style.left=(sl+Math.max(0,Math.round((w-cw)/2)))+'px';cv.style.top=(st+Math.max(0,Math.round((h-ch)/2)))+'px';cv.style.width=cw+'px';cv.style.height=ch+'px';cv.width=VW*S;cv.height=VH*S;
+const cw=VW*k,ch=VH*k;cv.style.left=(sl+Math.max(0,Math.round((w-cw)/2)))+'px';cv.style.top=(st+Math.max(0,Math.round((h-ch)/2)))+'px';cv.style.width=cw+'px';cv.style.height=ch+'px';
+if(/[?&]dbg/.test(location.search)){let d=document.getElementById('dbg');if(!d){d=document.createElement('div');d.id='dbg';d.style.cssText='position:fixed;left:4px;bottom:4px;z-index:9;font:10px monospace;color:#0f0;background:#000a;padding:2px 4px;pointer-events:none';document.body.appendChild(d)}d.textContent=[innerWidth+'x'+innerHeight,'doc '+document.documentElement.clientWidth+'x'+document.documentElement.clientHeight,'vv '+(vv?Math.round(vv.width)+'x'+Math.round(vv.height):'-'),'scr '+screen.width+'x'+screen.height,'safe t'+st+' b'+sb,'cv '+Math.round(cw)+'x'+Math.round(ch)+' @'+Math.round(cv.offsetTop),standalone?'APP':'web'].join(' | ')}cv.width=VW*S;cv.height=VH*S;
 VG=x.createRadialGradient(88,GH/2,GH*.3,88,GH/2,GH*.75);VG.addColorStop(0,'rgba(0,0,0,0)');VG.addColorStop(1,'rgba(0,0,0,.5)');VR=null;tbg=null}
 
 addEventListener('resize',rs,{passive:true});
