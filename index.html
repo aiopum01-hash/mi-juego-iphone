@@ -1,7 +1,7 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
-<title>GRENDARK RISE · Pantalla adaptable v149</title>
+<title>GRENDARK RISE · Pantalla adaptable v150</title>
  
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -283,7 +283,7 @@ const sl=px('--safe-left'),sr=px('--safe-right'),st=px('--safe-top'),sb=px('--sa
 const sc=innerWidth>innerHeight?Math.min(screen.width||0,screen.height||0):Math.max(screen.width||0,screen.height||0),
 // v149 · iOS en modo app puede dar una ventana más corta que la pantalla (p. ej. 797 de 844 px): lo que hay debajo no se puede pintar,
 // así que el canvas se ajusta EXACTAMENTE al alto real (sin salirse) y no se reserva además la zona del indicador de inicio.
-bi=(standalone&&sc&&layoutH<sc-10)?0:sb,
+bi=0,/* v150: el canvas llega hasta el borde inferior (bajo el indicador de inicio) */
 w=Math.max(1,layoutW-sl-sr),h=Math.max(1,layoutH-st-bi);
 VH=Math.min(440,Math.max(300,Math.round(VW*h/w)));GH=VH-OY-BH;Z=Math.max(1.2,GH/WH);
 const k=Math.min(w/VW,h/VH),dpr=devicePixelRatio||1,rdpr=perfMode?Math.min(dpr,1):Math.min(dpr,2.5);S=Math.max(1,Math.round(k*rdpr));
