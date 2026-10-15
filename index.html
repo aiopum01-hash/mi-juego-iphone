@@ -5983,33 +5983,70 @@ function netTick(dt){
 // ---------- pestaña AMIGOS ----------
 function frOpen(){sfx(400,.1,'square',.04);state='fr';net.pollT=0;net.frS=0;if(!net.peer&&!net.loading){net.retry=0}}
 const FRV=()=>Math.max(2,Math.floor((VH-262)/25));
+const FR_AVC=['#ffd23f','#7ee0cf','#ff7ad9','#8bd3dd','#a3e635','#ffa534','#c084fc','#ff7849'];
+function frHue(t){let h=0;t=String(t||'');for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return FR_AVC[Math.abs(h)%FR_AVC.length]}
+// avatar: cuadrado redondeado con la inicial; dim=apagado (sin conexión); st=color del punto de estado (opcional)
+function frAv(X,Y,w,l,c,dim,st,pulse){
+ const g=x.createLinearGradient(0,Y,0,Y+w);g.addColorStop(0,dim?'#3a2f58':c);g.addColorStop(1,dim?'#1d1530':'#1a1229');
+ x.save();x.shadowColor=dim?'rgba(0,0,0,0)':c;x.shadowBlur=dim?0:4;rb(X,Y,w,w,w*.28,g,dim?'#4a3d6b':c);x.restore();
+ x.fillStyle='rgba(255,255,255,.22)';x.fillRect(X+w*.2,Y+1.2,w*.6,1.2);
+ tx(String(l||'?').trim().slice(0,1).toUpperCase()||'?',X+w/2,Y+w/2+.6,dim?'#8a80a8':'#fff',w*.52);
+ if(st){const cx=X+w-1,cy=Y+w-1;if(pulse){x.save();x.globalAlpha=.45*(1-pulse);x.strokeStyle=st;x.lineWidth=1;x.beginPath();x.arc(cx,cy,3.2+pulse*3,0,7);x.stroke();x.restore()}
+  x.fillStyle='#120b1e';x.beginPath();x.arc(cx,cy,3.6,0,7);x.fill();x.fillStyle=st;x.beginPath();x.arc(cx,cy,2.5,0,7);x.fill()}}
+// cabecera de sección: barra de color + título + contador + línea hasta 'end'
+function frHd(Y,t,n,c,end){
+ x.fillStyle=c;x.fillRect(10,Y+1,2.5,8);tx(t,16,Y+5,'#ffe27a',5.4,'left');
+ const w=x.measureText(t).width,bx=16+w+4,bw=Math.max(12,String(n).length*3.6+7);
+ rb(bx,Y+1,bw,8,4,'#120b1e',c);tx(String(n),bx+bw/2,Y+5.3,c,4.4);
+ const lx=bx+bw+4;if(end-lx>6){x.fillStyle='#3a2f58';x.fillRect(lx,Y+4.5,end-lx,1)}}
 function dFr(){
  emb();uTtl('AMIGOS',18);
- // tu código
+ const P=Math.sin(tm*4)*.5+.5,pu=(tm*.8)%1;
+ // ---- tarjeta de perfil ----
  uCard(8,30,160,50,'#ffd23f');
- tx('TU CÓDIGO · TOCA PARA COPIAR',16,40,'#a79ccb',4.2,'left');
- tx(FRI.c,16,55,'#ffd23f',12,'left');
- tx('NOMBRE: '+FRI.n+'  ✎',16,71,'#e8e0f5',5.4,'left');
- {const ok=net.ok,c=ok?'#4ade80':net.loading||!net.err?'#ffb020':'#ff6b6b';x.fillStyle=c;x.beginPath();x.arc(120,41,2.4,0,7);x.fill();tx(ok?'EN LÍNEA':(net.err||'CONECTANDO')+' ↻',126,41,c,4,'left')}
- // grupo
+ frAv(14,35,18,FRI.n,'#ffd23f',0);
+ tx(FRI.n,36,41.5,'#fff',6.6,'left');
+ tx('TOCA PARA CAMBIAR EL NOMBRE ✎',36,50,'#8a80a8',3.4,'left');
+ {const ok=net.ok,c=ok?'#4ade80':net.loading||!net.err?'#ffb020':'#ff6b6b',lb=ok?'EN LÍNEA':net.err?'REINTENTAR ↻':'CONECTANDO';
+  rb(112,36,52,12,6,'#120b1e',c);
+  if(ok){x.save();x.globalAlpha=.5*(1-pu);x.strokeStyle=c;x.lineWidth=1;x.beginPath();x.arc(119,42,2.4+pu*3.2,0,7);x.stroke();x.restore()}
+  x.fillStyle=c;x.beginPath();x.arc(119,42,2.4,0,7);x.fill();tx(lb,142,42.4,c,3.9)}
+ tx('TU CÓDIGO',14,57,'#a79ccb',3.6,'left');
+ {const L=Math.max(1,FRI.c.length),bw=Math.min(14,Math.floor(92/L)-1),st=bw+2;
+  for(let i=0;i<L;i++){const X=14+i*st;rb(X,61,bw,15,3,'#0d0814','#6b5aa6');x.fillStyle='rgba(255,210,63,.12)';x.fillRect(X+1,62,bw-2,3);tx(FRI.c[i],X+bw/2,69,'#ffd23f',10)}
+  const cp=net.msg=='CÓDIGO COPIADO'&&tm<net.msgT,bx=14+L*st+3;
+  rb(bx,61,164-bx,15,6,cp?'#2f9e5b':'#3b2f5c',cp?'#4ade80':'#c084fc');tx(cp?'¡COPIADO!':'COPIAR',bx+(164-bx)/2,68.7,'#fff',5.2)}
+ // ---- grupo ----
  const GY=86,mem=partyView();
- tx('TU GRUPO  '+(net.role?partyCount():1)+'/'+PARTY_MAX,10,GY+4,'#ffe27a',5.6,'left');
- if(net.role=='client')tx('SALIR',166,GY+4,'#ff8a8a',5,'right');
- for(let i=0;i<PARTY_MAX;i++){const Y=GY+11+i*16,s=mem[i];rb(8,Y,160,14,4,'#1a1229','#4a3d6b');
-  x.fillStyle=PARTY_COL[i];x.fillRect(12,Y+4,6,6);
-  if(s){tx((s.me?FRI.n+' (TÚ)':s.n),24,Y+7.5,'#e8e0f5',5.6,'left');if(s.host)tx('ANFITRIÓN',164,Y+7.5,'#ffd23f',4.2,'right');else if(net.role=='host')tx('EXPULSAR',164,Y+7.5,'#ff8a8a',4.2,'right')}
-  else tx('— LIBRE · INVITA A UN AMIGO —',24,Y+7.5,'#6f6590',4.4,'left')}
- // amigos
+ frHd(GY,'TU GRUPO',(net.role?partyCount():1)+'/'+PARTY_MAX,'#7ee0cf',net.role=='client'?132:168);
+ if(net.role=='client'){rb(136,GY-1,30,11,5,'#3a1520','#ff8a8a');tx('SALIR',151,GY+4.6,'#ff8a8a',4.2)}
+ for(let i=0;i<PARTY_MAX;i++){const Y=GY+11+i*16,s=mem[i],c=PARTY_COL[i];
+  if(s){rb(8,Y,160,14,5,'#1a1229',c+'99');x.fillStyle=c;x.fillRect(9,Y+3,2,8);
+   frAv(14,Y+2,10,s.me?FRI.n:s.n,c,0);
+   tx(s.me?FRI.n+' (TÚ)':s.n,29,Y+7.6,'#e8e0f5',5.4,'left');
+   if(s.host){rb(116,Y+3,48,8,4,'#3a2f10','#ffd23f');tx('★ ANFITRIÓN',140,Y+7.3,'#ffd23f',3.9)}
+   else if(net.role=='host'){rb(128,Y+3,36,8,4,'#3a1520','#ff8a8a');tx('EXPULSAR',146,Y+7.3,'#ff8a8a',3.9)}}
+  else{rb(8,Y,160,14,5,'#100a1a',null);x.save();x.setLineDash([2.5,2.5]);x.strokeStyle='#4a3d6b';x.lineWidth=1;x.stroke();x.restore();
+   x.fillStyle='#4a3d6b';x.fillRect(16,Y+6.2,6,1.6);x.fillRect(18.2,Y+4,1.6,6);
+   tx('LIBRE · INVITA A UN AMIGO',29,Y+7.6,'#6f6590',4.2,'left')}}
+ // ---- amigos ----
  const LY=GY+11+PARTY_MAX*16+6;
- tx('AMIGOS  '+FRI.l.length,10,LY+4,'#ffe27a',5.6,'left');
  const vis=FRV(),mx=Math.max(0,FRI.l.length-vis);net.frS=cl(net.frS,0,mx);
- if(mx>0){tx('▲',150,LY+4,net.frS>0?'#ffd23f':'#4a3d6b',6);tx('▼',162,LY+4,net.frS<mx?'#ffd23f':'#4a3d6b',6)}
- if(!FRI.l.length)tx('Aún no tienes amigos. Pulsa AÑADIR y',88,LY+26,'#8a80a8',4.6);
- if(!FRI.l.length)tx('escribe el código que te pasen.',88,LY+34,'#8a80a8',4.6);
- for(let i=0;i<vis;i++){const f=FRI.l[net.frS+i];if(!f)break;const Y=LY+11+i*25,pr=net.pres[f.c],inG=!!net.conn[f.c]||f.c==net.hostCode,on=inG||(pr&&pr.on&&tm-pr.t<30);
+ frHd(LY,'AMIGOS',FRI.l.length,'#ffd23f',mx>0?138:168);
+ if(mx>0){const u=net.frS>0,d=net.frS<mx;rb(142,LY-1,12,11,4,'#1a1229',u?'#ffd23f':'#3a2f58');tx('▲',148,LY+4.6,u?'#ffd23f':'#4a3d6b',5.4);rb(157,LY-1,11,11,4,'#1a1229',d?'#ffd23f':'#3a2f58');tx('▼',162.5,LY+4.6,d?'#ffd23f':'#4a3d6b',5.4)}
+ if(!FRI.l.length){
+  x.save();x.fillStyle='#3a2f58';x.beginPath();x.arc(88,LY+21,3.6,0,7);x.fill();x.beginPath();x.arc(88,LY+33,7.5,Math.PI,0);x.fill();
+  x.fillStyle='#2a2140';x.beginPath();x.arc(77,LY+23,2.8,0,7);x.fill();x.beginPath();x.arc(77,LY+33,5.5,Math.PI,0);x.fill();
+  x.beginPath();x.arc(99,LY+23,2.8,0,7);x.fill();x.beginPath();x.arc(99,LY+33,5.5,Math.PI,0);x.fill();x.restore();
+  tx('Aún no tienes amigos.',88,LY+42,'#a79ccb',4.8);
+  tx('Pulsa AÑADIR y escribe su código.',88,LY+50,'#8a80a8',4.2)}
+ for(let i=0;i<vis;i++){const f=FRI.l[net.frS+i];if(!f)break;
+  const Y=LY+11+i*25,pr=net.pres[f.c],inG=!!net.conn[f.c]||f.c==net.hostCode,on=inG||(pr&&pr.on&&tm-pr.t<30),col=frHue(f.c),sc=on?'#4ade80':'#5c4d82';
   uCard(8,Y,160,22,on?'#4ade80':'#6b5aa6');
-  x.fillStyle=on?'#4ade80':'#5c4d82';x.beginPath();x.arc(17,Y+11,2.6,0,7);x.fill();
-  tx(f.n,24,Y+8,'#e8e0f5',6,'left');tx(f.c+(on?'':(pr?'  · DESCONECTADO':'  · COMPROBANDO...')),24,Y+17,'#8a80a8',4,'left');
+  frAv(14,Y+3,16,f.n,col,!on,sc,on?pu:0);
+  tx(f.n,36,Y+8,on?'#fff':'#c9bfe6',6,'left');
+  const stt=inG?'EN GRUPO':on?'EN LÍNEA':pr?'OFFLINE':'COMPROBANDO';
+  tx(f.c,36,Y+17,'#8a80a8',3.8,'left');const cw=x.measureText(f.c).width;tx('· '+stt,36+cw+3,Y+17,on?'#4ade80':'#6f6590',3.8,'left');
   let lb,c,act=0;
   if(inG){lb='EN GRUPO';c='#4ade80'}
   else if(!on){lb=pr?'OFFLINE':'...';c='#5c4d82'}
@@ -6017,12 +6054,18 @@ function dFr(){
   else if(net.role=='client'||runOn||(net.role=='host'&&net.mem.length>=PARTY_MAX-1)){lb='—';c='#5c4d82'}
   else if(net.sent[f.c]&&tm-net.sent[f.c]<20){lb='ENVIADA';c='#7ee0cf'}
   else{lb='INVITAR';c='#ffd23f';act=1}
-  rb(100,Y+4,46,14,5,act?'#3b2f5c':'#1a1229',c);tx(lb,123,Y+11.2,c,4.8);
-  tx('✕',158,Y+11,'#ff8a8a',7)}
- // pie
- rb(24,VH-78,128,20,6,'#2f9e5b','#4ade80');tx('+ AÑADIR AMIGO',88,VH-67.5,'#fff',6.5);
- rb(24,VH-52,128,20,6,'#1a1229','#6b5aa6');tx('VOLVER',88,VH-41.5,'#cfc6ee',6.5);
- if(net.msg&&tm<net.msgT)tx(net.msg,88,VH-91,'#ffd23f',5);else if(net.dbg)tx(net.dbg,88,VH-91,net.ok?'#6f6590':'#ff9d9d',3.8);
+  if(act){x.save();x.globalAlpha=.18+.3*P;rb(98,Y+2,50,18,9,null,c);x.restore()}
+  rb(100,Y+4,46,14,7,act?'#3b2f5c':'#1a1229',c);tx(lb,123,Y+11.2,c,4.8);
+  x.fillStyle='#2a1220';x.beginPath();x.arc(158,Y+11,6,0,7);x.fill();x.strokeStyle='#ff8a8a';x.lineWidth=1;x.stroke();tx('✕',158,Y+11.4,'#ff8a8a',5.6)}
+ if(mx>0){const top=LY+11,tr=vis*25-3,th=Math.max(8,tr*vis/FRI.l.length),ty=top+(tr-th)*(net.frS/mx);rb(171,top,2.4,tr,1.2,'#2a2140',null);rb(171,ty,2.4,th,1.2,'#ffd23f',null)}
+ // ---- pie ----
+ {const Y=VH-78,g=x.createLinearGradient(0,Y,0,Y+20);g.addColorStop(0,'#3ecf7a');g.addColorStop(1,'#1f7a45');
+  x.save();x.shadowColor='rgba(0,0,0,.5)';x.shadowBlur=4;x.shadowOffsetY=2;rb(24,Y,128,20,6,g);x.restore();rb(24,Y,128,20,6,0,'#8cf0b4');
+  x.fillStyle='rgba(255,255,255,.2)';x.fillRect(30,Y+2,116,5);
+  x.fillStyle='#fff';x.fillRect(37,Y+9,8,2);x.fillRect(40,Y+6,2,8);tx('AÑADIR AMIGO',94,Y+10.6,'#fff',6.5)}
+ rb(24,VH-52,128,20,6,'#1a1229','#6b5aa6');tx('‹  VOLVER',88,VH-41.5,'#cfc6ee',6.5);
+ if(net.msg&&tm<net.msgT&&net.msg!='CÓDIGO COPIADO'){const w=Math.min(156,net.msg.length*3.3+14);rb(88-w/2,VH-96,w,12,6,'#120b1e','#ffd23f');tx(net.msg,88,VH-89.6,'#ffd23f',4.6)}
+ else if(net.dbg)tx(net.dbg,88,VH-90,net.ok?'#6f6590':'#ff9d9d',3.8);
  if(frDlg)dFrDlg();
 }
 function netForce(){try{if(net.peer)net.peer.destroy()}catch(e){}net.peer=null;net.ok=0;net.err='';net.loading=0;net.retry=tm+1.5;net.pg={};net.pres={};net.pollT=0;nMsg('RECONECTANDO...');sfx(400,.1,'square',.04)}
@@ -6042,7 +6085,7 @@ function frClk(px,py,kb){
  if(py>=VH-78&&py<VH-56&&px>=24&&px<=152){frAdd();return}
  if(px>=112&&py>=34&&py<=48){netForce();return}
  if(py>=30&&py<=80){
-  if(py>=64){frDlg={m:'name',v:FRI.n=='EL VIAJERO'?'':FRI.n,max:12};sfx(400,.1,'square',.04)}
+  if(py<54){frDlg={m:'name',v:FRI.n=='EL VIAJERO'?'':FRI.n,max:12};sfx(400,.1,'square',.04)}
   else{const ok_=()=>nMsg('CÓDIGO COPIADO'),no_=()=>{try{const t=document.createElement('textarea');t.value=FRI.c;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();const r=document.execCommand('copy');t.remove();r?ok_():nMsg('TU CÓDIGO: '+FRI.c)}catch(e){nMsg('TU CÓDIGO: '+FRI.c)}};try{navigator.clipboard.writeText(FRI.c).then(ok_,no_)}catch(e){no_()}sfx(520,.08,'square',.05)}
   return}
  const GY=86;
