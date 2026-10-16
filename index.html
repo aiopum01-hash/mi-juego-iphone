@@ -6738,6 +6738,21 @@ const put=s=>{if(s.meta!=null)LS.setItem(MK,s.meta);[[RK,s.run],[RKP,s.rkp]].for
 const wipe=()=>[MK,RK,RKP,'cc_meta2','cc_best'].forEach(k=>LS.removeItem(k));
 const _sm=window.sm;
 let fb=null,user=null,synced=0,pending=0,timer=0,status='',linking=0;
+/* v178 · el nombre del juego (FRI.n) va ligado a la cuenta */
+const DEF_N='EL VIAJERO';
+function setGameName(n){try{const v=nClean(n);if(v&&v!==FRI.n){FRI.n=v;frSave()}}catch(e){}}
+let nameT=0;
+const _frSave=window.frSave;
+window.frSave=function(){
+  const r=_frSave.apply(this,arguments);
+  try{
+    if(acct&&acct.type==='guest'&&FRI.n!==DEF_N&&acct.name!==FRI.n)setAcct({type:'guest',name:FRI.n});
+    if(user&&synced){clearTimeout(nameT);nameT=setTimeout(()=>push().catch(()=>{}),1500)}
+  }catch(e){}
+  return r;
+};
+/* invitados ya existentes con el nombre por defecto: usar el que eligieron al entrar */
+if(acct&&acct.type==='guest'&&FRI.n===DEF_N)setGameName(acct.name);
 
 /* ---- DOM ---- */
 const el=(t,p)=>Object.assign(document.createElement(t),p||{});
@@ -6849,7 +6864,7 @@ function showWelcome(step,err){
     const er=add('div',{className:'er',textContent:err||''});
     const go=()=>{const n=inp.value.trim().replace(/\s+/g,' ');
       if(n.length<3){er.textContent='Mínimo 3 caracteres';return}
-      setAcct({type:'guest',name:n});hideWelcome()};
+      setAcct({type:'guest',name:n});setGameName(n);hideWelcome()};
     inp.addEventListener('keydown',e=>{if(e.key==='Enter')go()});
     add('button',{textContent:'Entrar',onclick:go});
     add('button',{className:'l',textContent:'‹ Atrás',onclick:()=>showWelcome()});
@@ -6906,7 +6921,7 @@ function needCloud(){
 }
 async function login(){
   if(!needCloud())return;
-  const p=new firebase.auth.GoogleAuthProvider();
+  const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});
   try{await fb.auth.signInWithPopup(p)}
   catch(e){const c=e.code||'';
     if(/popup-blocked|operation-not-supported/.test(c))try{await fb.auth.signInWithRedirect(p);return}catch(_){}
@@ -6916,7 +6931,7 @@ const ref=()=>fb.db.doc('saves/'+user.uid);
 async function push(){
   if(!user||!synced)return;pending=0;
   const m=LS.getItem(MK);if(!m)return;let t=0;try{t=JSON.parse(m).t||0}catch(e){}
-  await ref().set({t,meta:m,run:LS.getItem(RK)||null,rkp:LS.getItem(RKP)||null});
+  await ref().set({t,meta:m,run:LS.getItem(RK)||null,rkp:LS.getItem(RKP)||null,name:FRI.n});
   status='GUARDADO '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 }
 const gAcct=()=>({type:'google',name:user.displayName||user.email||'Jugador'});
@@ -6924,14 +6939,16 @@ const idle=()=>new Promise(r=>{const i=setInterval(()=>{if(state!=='play'){clear
 async function pull(link){
   try{
     const d=await ref().get(),c=d.exists?d.data():null;
+    const cn_=c&&c.name?c.name:'';
     if(link){
       linking=0;
       if(c&&c.meta&&(meta.t||0)>0&&!confirm('Esta cuenta de Google ya tiene progreso guardado.\n\nAceptar: subir tu progreso de invitado (reemplaza el de la nube).\nCancelar: usar el de la nube (se pierde el de invitado).'))
-        {setAcct(gAcct());put(c);location.reload();return}
-      if(c&&c.meta&&!((meta.t||0)>0)){setAcct(gAcct());put(c);location.reload();return}
+        {setAcct(gAcct());put(c);if(cn_)setGameName(cn_);location.reload();return}
+      if(c&&c.meta&&!((meta.t||0)>0)){setAcct(gAcct());put(c);if(cn_)setGameName(cn_);location.reload();return}
       setAcct(gAcct());synced=1;_sm();await push();hideWelcome();toast('Cuenta vinculada: tu progreso está en la nube');return;
     }
     setAcct(gAcct());hideWelcome();
+    if(cn_)setGameName(cn_);
     if(c&&(c.t||0)>(meta.t||0)){await idle();put(c);location.reload();return}
     synced=1;
     if(!c||(meta.t||0)>(c.t||0))await push();else status='SINCRONIZADO';
