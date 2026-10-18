@@ -199,36 +199,7 @@ canvas{position:fixed;display:block;left:0;top:0;margin:0;padding:0;max-width:no
 @keyframes ldTf{0%{transform:scale(1,1)}25%{transform:scale(.9,1.1)}50%{transform:scale(1.06,.95)}75%{transform:scale(.95,1.06)}}
 @media(max-width:560px){#gwLd .ldTc{width:20px;height:50px;margin-top:-25px}#gwLd .ldTc.a{left:2px}#gwLd .ldTc.b{right:2px}#gwLd .ldTc i{width:150px;height:150px;margin:-75px 0 0 -75px;top:8px}}
 @media(max-height:430px){#gwLd.boot .ldI{width:56px;height:56px}#gwLd.boot .ldTp,#gwLd.boot .ldTc{display:none}}
-@media(prefers-reduced-motion:reduce){#gwLd *{animation:none!important}#gwLd .ldB i{background:var(--b1)}}</style><script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script></head><body><canvas id="c" width="1056" height="1812" style="left: 0px; top: 0px; width: 390px; height: 669.204545px;"></canvas><script>/* v192 · panel de depuración */
-(function(){
-var L=[],box,ta,t0=Date.now();
-function stamp(){return ((Date.now()-t0)/1000).toFixed(2)+'s '}
-window.__dbg=function(m){try{L.push(stamp()+m);if(L.length>150)L.shift();if(ta)ta.value=L.join('\n');if(ta)ta.scrollTop=1e9}catch(e){}};
-function ui(){
- box=document.createElement('div');
- box.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#000d;color:#9f9;font:10px/1.3 monospace;padding:4px;display:flex;flex-direction:column;gap:4px';
- var bar=document.createElement('div');bar.style.cssText='display:flex;gap:6px';
- function btn(t,fn){var b=document.createElement('button');b.textContent=t;b.style.cssText='flex:1;padding:8px;font:12px monospace;background:#333;color:#fff;border:1px solid #888';b.onclick=fn;bar.appendChild(b)}
- btn('COPIAR LOG',function(){ta.select();try{ta.setSelectionRange(0,1e9)}catch(e){}var ok=0;try{ok=document.execCommand('copy')}catch(e){}try{navigator.clipboard&&navigator.clipboard.writeText(ta.value)}catch(e){}window.__dbg(ok?'(copiado)':'(selecciona el texto y copia a mano)')});
- btn('ESTADO',function(){try{window.__dbg('ESTADO '+JSON.stringify(window.__dbgS&&window.__dbgS()))}catch(e){window.__dbg('ESTADO error '+e)}});
- btn('OCULTAR',function(){ta.style.display=ta.style.display=='none'?'':'none'});
- ta=document.createElement('textarea');ta.readOnly=true;ta.style.cssText='height:30vh;width:100%;box-sizing:border-box;background:#000;color:#9f9;font:10px/1.3 monospace;border:1px solid #444';
- ta.value=L.join('\n');box.appendChild(bar);box.appendChild(ta);document.body.appendChild(box)}
-function desc(e){if(!e)return'null';var c=(e.className&&e.className.baseVal==null?e.className:'')||'';return e.tagName+(e.id?'#'+e.id:'')+(c?'.'+String(c).trim().replace(/\s+/g,'.'):'')+((e.textContent||'').length<30&&e.tagName=='BUTTON'?'['+e.textContent.trim()+']':'')}
-['pointerdown','pointerup','click','touchstart','touchend'].forEach(function(n){
- addEventListener(n,function(e){try{var x=e.clientX,y=e.clientY;if(e.changedTouches&&e.changedTouches[0]){x=e.changedTouches[0].clientX;y=e.changedTouches[0].clientY}
-  if(e.target&&box&&box.contains(e.target))return;
-  var top=document.elementFromPoint(x,y);
-  window.__dbg('CAP '+n+' target='+desc(e.target)+' top='+desc(top)+' cancelable='+e.cancelable)}catch(er){}},true);
- addEventListener(n,function(e){try{if(box&&box.contains(e.target))return;window.__dbg('  BUB '+n+' llegó a window, defaultPrevented='+e.defaultPrevented)}catch(er){}},false)});
-addEventListener('error',function(e){window.__dbg('ERROR '+e.message+' @'+(e.filename||'').split('/').pop()+':'+e.lineno+':'+e.colno)},true);
-addEventListener('unhandledrejection',function(e){window.__dbg('REJECT '+(e.reason&&(e.reason.code||e.reason.message)||e.reason))});
-['error','warn'].forEach(function(k){var o=console[k];console[k]=function(){try{window.__dbg('console.'+k+' '+Array.prototype.slice.call(arguments).map(function(a){return a&&a.message?a.message:String(a)}).join(' ').slice(0,300))}catch(e){}return o.apply(console,arguments)}});
-window.__dbg('UA '+navigator.userAgent);
-window.__dbg('url '+location.href+' | iframe='+(window.top!==window)+' | SW='+('serviceWorker' in navigator));
-try{localStorage.setItem('__t','1');localStorage.removeItem('__t');window.__dbg('localStorage OK')}catch(e){window.__dbg('localStorage FALLA '+e)}
-if(document.body)ui();else document.addEventListener('DOMContentLoaded',ui);
-})();</script><script>try{if(localStorage.getItem('grendark_acct_v1')){var d=document.createElement('div');d.id='gwPre';d.style.cssText='position:fixed;inset:0;z-index:74;background:radial-gradient(ellipse at 50% 42%,#3b2377 0%,#1c1036 45%,#0d0814 85%)';document.body.appendChild(d);setTimeout(function(){var p=document.getElementById('gwPre');if(p)p.remove()},9000)}}catch(e){}</script><script>
+@media(prefers-reduced-motion:reduce){#gwLd *{animation:none!important}#gwLd .ldB i{background:var(--b1)}}</style><script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script></head><body><canvas id="c" width="1056" height="1812" style="left: 0px; top: 0px; width: 390px; height: 669.204545px;"></canvas><script>try{if(localStorage.getItem('grendark_acct_v1')){var d=document.createElement('div');d.id='gwPre';d.style.cssText='position:fixed;inset:0;z-index:74;background:radial-gradient(ellipse at 50% 42%,#3b2377 0%,#1c1036 45%,#0d0814 85%)';document.body.appendChild(d);setTimeout(function(){var p=document.getElementById('gwPre');if(p)p.remove()},9000)}}catch(e){}</script><script>
 'use strict';
 /* v164 · diagnóstico (?dbg): errores globales y estado del HUD */
 window.__E=[];window.__H={n:0,ok:0,a:0,z:0,s:'',pl:0,t:0};
